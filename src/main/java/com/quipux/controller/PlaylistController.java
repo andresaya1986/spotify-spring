@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
@@ -22,6 +24,7 @@ public class PlaylistController {
 
     private final PlaylistRepository repository;
     private final CancionRepository cancionRepository;
+    private static final Logger logger = LoggerFactory.getLogger(PlaylistController.class);
     
     @Autowired
     private SpotifyService spotifyService;
@@ -100,7 +103,9 @@ public class PlaylistController {
                     return ResponseEntity.badRequest().body("Invalid genre: " + cancion.getGenero());
                 }
             } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Genre validation service unavailable");
+                logger.warn("Genre validation failed, proceeding without external validation: {}", e.getMessage());
+                // If Spotify validation fails (e.g., missing token or network issue),
+                // allow adding the song locally instead of returning 503.
             }
         }
         

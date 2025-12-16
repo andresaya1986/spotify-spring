@@ -2,6 +2,7 @@ package com.quipux;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quipux.model.Playlist;
+import com.quipux.model.Cancion;
 import com.quipux.repository.PlaylistRepository;
 import com.quipux.security.JwtTokenProvider;
 import com.quipux.service.SpotifyService;
@@ -104,4 +105,23 @@ public class PlaylistControllerTest {
                 .andExpect(jsonPath("$.token").exists())
                 .andExpect(jsonPath("$.username").value("testuser"));
     }
+
+        @Test
+        void addCancion_whenSpotifyFails_allowsLocalAdd() throws Exception {
+                // simulate spotify service failure
+                when(spotifyService.isValidGenre(anyString())).thenThrow(new RuntimeException("No token"));
+
+                // create playlist
+                repository.save(new Playlist("testlist", "desc"));
+
+                Cancion c = new Cancion("Song 1", "Artist", "Album", "2020", "rock");
+
+                mockMvc.perform(post("/lists/testlist/canciones")
+                                                .header("Authorization", "Bearer " + token)
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(objectMapper.writeValueAsString(c)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.titulo").value("Song 1"))
+                                .andExpect(jsonPath("$.artista").value("Artist"));
+        }
 }

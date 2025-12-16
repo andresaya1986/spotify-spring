@@ -1,6 +1,7 @@
 package com.quipux.model;
 
 import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
 
 @Entity
@@ -27,6 +28,7 @@ public class Cancion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playlist_id", nullable = false)
+    @JsonIgnoreProperties("canciones")
     private Playlist playlist;
 
     public Cancion() {}
