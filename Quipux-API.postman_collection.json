@@ -1,0 +1,441 @@
+{
+  "info": {
+    "_postman_id": "quipux-api-collection",
+    "name": "Quipux Music API",
+    "description": "REST API for managing music playlists with JWT authentication and Spotify genre integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('jwt_token', jsonData.token);",
+                  "    console.log('JWT Token saved:', jsonData.token.substring(0, 20) + '...');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/login?username=admin",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"],
+              "query": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Login with any username to get a JWT token. The token will be automatically saved to the jwt_token environment variable."
+          },
+          "response": [
+            {
+              "name": "Login Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/login?username=admin",
+                  "host": ["{{base_url}}"],
+                  "path": ["auth", "login"],
+                  "query": [
+                    {
+                      "key": "username",
+                      "value": "admin",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n    \"token\": \"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTcwMjY0OTIwOSwiZXhwIjoxNzAyNzM1NjA5fQ.abc123...\",\n    \"username\": \"admin\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Playlists",
+      "item": [
+        {
+          "name": "Create Playlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Favorite Rock\",\n  \"description\": \"A collection of classic rock songs\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists",
+              "host": ["{{base_url}}"],
+              "path": ["lists"]
+            },
+            "description": "Create a new playlist with a name and optional description"
+          },
+          "response": [
+            {
+              "name": "Playlist Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"My Favorite Rock\",\n  \"description\": \"A collection of classic rock songs\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/lists",
+                  "host": ["{{base_url}}"],
+                  "path": ["lists"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n    \"id\": 1,\n    \"name\": \"My Favorite Rock\",\n    \"description\": \"A collection of classic rock songs\",\n    \"canciones\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Playlists",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists",
+              "host": ["{{base_url}}"],
+              "path": ["lists"]
+            },
+            "description": "Get all playlists"
+          },
+          "response": [
+            {
+              "name": "All Playlists",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/lists",
+                  "host": ["{{base_url}}"],
+                  "path": ["lists"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "[\n    {\n        \"id\": 1,\n        \"name\": \"My Favorite Rock\",\n        \"description\": \"A collection of classic rock songs\",\n        \"canciones\": []\n    },\n    {\n        \"id\": 2,\n        \"name\": \"Pop Hits\",\n        \"description\": \"Popular songs collection\",\n        \"canciones\": []\n    }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Playlist by Name",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/My Favorite Rock",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "My Favorite Rock"]
+            },
+            "description": "Get a specific playlist by its name"
+          },
+          "response": [
+            {
+              "name": "Playlist Details",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/lists/My Favorite Rock",
+                  "host": ["{{base_url}}"],
+                  "path": ["lists", "My Favorite Rock"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n    \"id\": 1,\n    \"name\": \"My Favorite Rock\",\n    \"description\": \"A collection of classic rock songs\",\n    \"canciones\": [\n        {\n            \"id\": 1,\n            \"titulo\": \"Bohemian Rhapsody\",\n            \"artista\": \"Queen\",\n            \"album\": \"A Night at the Opera\",\n            \"anno\": 1975,\n            \"genero\": \"rock\"\n        }\n    ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Playlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/My Favorite Rock",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "My Favorite Rock"]
+            },
+            "description": "Delete a playlist by its name"
+          },
+          "response": [
+            {
+              "name": "Playlist Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/lists/My Favorite Rock",
+                  "host": ["{{base_url}}"],
+                  "path": ["lists", "My Favorite Rock"]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Songs (Canciones)",
+      "item": [
+        {
+          "name": "Add Song to Playlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Bohemian Rhapsody\",\n  \"artista\": \"Queen\",\n  \"album\": \"A Night at the Opera\",\n  \"anno\": 1975,\n  \"genero\": \"rock\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lists/My Favorite Rock/canciones",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "My Favorite Rock", "canciones"]
+            },
+            "description": "Add a new song to a playlist. The genre must be a valid Spotify genre."
+          },
+          "response": [
+            {
+              "name": "Song Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"titulo\": \"Bohemian Rhapsody\",\n  \"artista\": \"Queen\",\n  \"album\": \"A Night at the Opera\",\n  \"anno\": 1975,\n  \"genero\": \"rock\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/lists/My Favorite Rock/canciones",
+                  "host": ["{{base_url}}"],
+                  "path": ["lists", "My Favorite Rock", "canciones"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n    \"id\": 1,\n    \"titulo\": \"Bohemian Rhapsody\",\n    \"artista\": \"Queen\",\n    \"album\": \"A Night at the Opera\",\n    \"anno\": 1975,\n    \"genero\": \"rock\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Songs in Playlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/My Favorite Rock/canciones",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "My Favorite Rock", "canciones"]
+            },
+            "description": "Get all songs in a specific playlist"
+          },
+          "response": [
+            {
+              "name": "Songs List",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/lists/My Favorite Rock/canciones",
+                  "host": ["{{base_url}}"],
+                  "path": ["lists", "My Favorite Rock", "canciones"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "[\n    {\n        \"id\": 1,\n        \"titulo\": \"Bohemian Rhapsody\",\n        \"artista\": \"Queen\",\n        \"album\": \"A Night at the Opera\",\n        \"anno\": 1975,\n        \"genero\": \"rock\"\n    },\n    {\n        \"id\": 2,\n        \"titulo\": \"Another One Bites the Dust\",\n        \"artista\": \"Queen\",\n        \"album\": \"The Game\",\n        \"anno\": 1980,\n        \"genero\": \"rock\"\n    }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Delete Song from Playlist",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lists/My Favorite Rock/canciones/1",
+              "host": ["{{base_url}}"],
+              "path": ["lists", "My Favorite Rock", "canciones", "1"]
+            },
+            "description": "Delete a specific song from a playlist by song ID"
+          },
+          "response": [
+            {
+              "name": "Song Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/lists/My Favorite Rock/canciones/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["lists", "My Favorite Rock", "canciones", "1"]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": ""
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set default environment variables if not already set",
+          "if (!pm.environment.has('base_url')) {",
+          "    pm.environment.set('base_url', 'http://localhost:8080');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
